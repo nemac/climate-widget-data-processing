@@ -1,0 +1,175 @@
+#! /usr/bin/env python
+
+###
+### generate stats files for monthly or seasonal data
+###
+
+import pandas as pd
+import numpy as np
+import re, math, csv, argparse, os, sys
+
+epilog=""
+
+parser = argparse.ArgumentParser(description='Write monthly stats file',
+                                 formatter_class=argparse.RawTextHelpFormatter,
+                                 epilog=epilog)
+
+parser.add_argument('-i', '--input_from', metavar='INPUT_FROM', default=None)
+parser.add_argument('type', metavar='TYPE', nargs='?', default="proj-mod")
+parser.add_argument('input_file', metavar='INPUT_FILE', nargs='?', default=None)
+parser.add_argument('output_file', metavar='OUTPUT_FILE', nargs='?', default=None)
+
+args = parser.parse_args()
+
+if args.input_from and (args.input_file or args.output_file):
+    print "-i may not be given with INPUT_FILE or OUTPUT_FILE"
+    sys.exit(-1)
+
+if not args.input_from and (not args.input_file or not args.output_file):
+    print "INPUT_FILE and OUTPUT_FILE are required unless -i is given"
+    sys.exit(-1)
+
+if args.type not in ["proj-mod", "hist-obs"]:
+    print "TYPE must be either 'proj-mod' or 'hist-obs' (default is 'proj-mod')"
+    sys.exit(-1)
+
+#pd.set_option('display.width', 150)
+#pd.set_option('display.max_rows', 500)
+
+year_ranges = [[2010, 2039],
+               [2035, 2064],
+               [2060, 2089]]
+
+scenarios = ['rcp45','rcp85']
+
+
+# Given a data frame df with columns 'month', 'year', and columns for a bunch of model values,
+# compute and return a new data frame which is obtained by:
+#   * considering only the years in a given year range
+#   * for each year and month in the given year range, average all the model values
+#     for a given scenario; this gives a single number for each year,month combo
+#   * for each month, take the median,min,max,p10,p90 stats for all the values
+#     (one for each year) for that month
+# The returned data frame has 12 rows, one for each month
+def proj_stat_frame(df, year_range, scenario):
+    # dfy = all data for years in the desired year range
+    dfy = df[(df['year']>=year_range[0]) & (df['year']<=year_range[1])]
+
+    # gcols = list of all columns containing models values in the given scenario
+    gcols = ['month'] + [col for col in dfy.columns.values if re.match('.*_'+scenario+'_.*', col)]
+    gb = dfy[gcols].groupby('month')
+
+    prefix = str((year_range[0]+15)) + scenario + "_"
+    ndf = pd.DataFrame({
+        prefix+'median' : gb.median().median(axis=1),
+        prefix+'max'    : gb.max().median(axis=1),
+        prefix+'min'    : gb.min().median(axis=1),
+        prefix+'p10'    : gb.quantile(q=0.1).median(axis=1),
+        prefix+'p90'    : gb.quantile(q=0.9).median(axis=1)
+    })
+    return ndf
+
+def ensure_dirs(dirpath):
+    # dirpath should be a string representing a path to a directory;
+    # it should NOT include a filename as part of the path
+    components = re.split(r'/', dirpath)
+    if len(components) == 0:
+        return
+    partialpath = components[0]
+    if partialpath == "":
+        return
+    if not os.path.exists(partialpath):
+        os.mkdir(partialpath)
+    for component in components[1:]:
+        partialpath = os.path.join(partialpath, component)
+        if not os.path.exists(partialpath):
+            try:
+                os.mkdir(partialpath)
+            except:
+                pass
+
+def monthly_proj_stats(input_file, output_file):
+    # read data from file
+    df = pd.read_csv(input_file)
+
+    # create new integer column 'month' with month numbers 1-12:
+    df['month'] = df['yyyymm'] % 100
+
+    # create new integer column 'year' with year numbers:
+    df['year'] = np.floor( df['yyyymm'] / 100 )
+
+    # build up an array of data frames, each containing the stats
+    # for a single year-range/scenario combination
+    dfs = []
+    for year_range in year_ranges:
+        for scenario in scenarios:
+            dfs.append(proj_stat_frame(df, year_range, scenario))
+
+    # concat them all together and write to the output file
+    stats = pd.concat(dfs, axis=1)
+
+    ensure_dirs(os.path.dirname(output_file))
+    stats.to_csv(output_file, index=True, quoting=csv.QUOTE_NONE, float_format="%.3f")
+    print "wrote %s" % output_file
+
+########################################################################
+
+def hist_mean_frame(df, year_range):
+    col = df.columns.values[1]
+    dfy = df[(df['year']>=year_range[0]) & (df['year']<=year_range[1])]
+    nfg = dfy.groupby('month')
+    return pd.DataFrame({
+        'mean30': nfg.mean()[dfy.columns.values[1]]
+    })
+
+def hist_stat_frame(df):
+    col = df.columns.values[1]
+    nfg = df.groupby('month')
+    return pd.DataFrame({
+        'median': nfg.median()[col],
+        'min':    nfg.min()[col],
+        'max':    nfg.max()[col],
+        'p10':    nfg.quantile(q=0.1)[col],
+        'p90':    nfg.quantile(q=0.9)[col]
+    })
+
+def monthly_hist_stats(input_file, output_file):
+    # read data from file
+    df = pd.read_csv(input_file)
+
+    # create new integer column 'month' with month numbers 1-12:
+    df['month'] = df['yyyymm'] % 100
+
+    # create new integer column 'year' with year numbers:
+    df['year'] = np.floor( df['yyyymm'] / 100 )
+
+    dfs = [hist_mean_frame(df, [1960,1989]),
+           hist_stat_frame(df)]
+
+    # concat them all together and write to the output file
+    stats = pd.concat(dfs, axis=1)
+    
+    ensure_dirs(os.path.dirname(output_file))
+    stats.to_csv(output_file, index=True, quoting=csv.QUOTE_NONE, float_format="%.3f")
+    print "wrote %s" % output_file
+
+
+
+########################################################################
+
+files = []
+if args.input_from:
+    with open(args.input_from,'r') as f:
+        for line in f:
+            line = line.strip()
+            fields = re.split(r'\s+', line)
+            if len(fields) == 3:
+                files.append({'type': fields[0], 'input': fields[1], 'output': fields[2]})
+else:
+    files.append({'type': args.type, 'input': args.input_file, 'output': args.output_file})
+
+for file in files:
+    if file['type'] == "proj-mod":
+        monthly_proj_stats(file['input'], file['output'])
+    elif file['type'] == "hist-obs":
+        monthly_hist_stats(file['input'], file['output'])
