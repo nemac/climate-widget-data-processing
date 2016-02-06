@@ -26,9 +26,7 @@ For any temporal resolution (annual, seasonal, monthly), perform the following s
    `data/derived/reformatted/COUNTY/TEMPORAL-RESOLTUION/REGIME/ELEMENT.csv`.
 
 2. Compute the statistics.  
-   For each file in the reformatted directory, run the relevant stats script;
-   - [annual](stats-annual)
-   - [monthly or seasonal](stats-ms)
+   For each file in the reformatted directory, run the relevant stats script: [annual](stats-annual) or [monthly/seasonal](stats-ms).
 
    Arrange the outputs as follows:
    `data/derived/final/COUNTY/TEMPORAL-RESOLTUION/REGIME/stats/ELEMENT.csv`.
