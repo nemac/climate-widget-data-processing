@@ -45,7 +45,7 @@ For any temporal resolution (annual, seasonal, monthly), perform the following s
    Note, however, that the Climate Widget does not use 'hist-obs' data for monthly or seasonal.
 
 ---
-**TODO: double check the following text to ensure it represents the latest methodology**
+**TODO: update the following to reflect the current methodlogy**
 
 # Statistics Computations
 The following is a narrative form of the processing and transformation the stats scripts perform on the data.
