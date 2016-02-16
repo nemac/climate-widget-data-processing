@@ -50,10 +50,7 @@ statistics will be computed across the collection of models as described below.
 ### Computing statistics for modeled data
 For each file in the input data directory, run the relevant stats script: [annual](stats-annual) or [monthly/seasonal](stats-ms).
 
-The computations are described [below](# Statistics Computations).
-
-Split out into separate files by county, time category, and element;
-Create a new header column and copy the header into each row it belongs to.
+The computations are described below.
 
 ### Output Data Paths for Public Use
 The following is expected by the client-side graphing application.
