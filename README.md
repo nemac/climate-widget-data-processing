@@ -4,7 +4,7 @@
 - Pandas 0.17.0
 - NumPy 1.7.1
 
-## Processing Workflow
+## Data Processing
 
 ### Terminology
 The source data consists of 3 kinds of data
@@ -19,30 +19,80 @@ refer to this characteristic of the data in the instructions below and
 in the code.  We use the abbreviations "hist-obs", "hist-mod", and
 "proj-mod" to refer to these.
 
-### Processing Steps
-For any temporal resolution (annual, seasonal, monthly), perform the following steps
+### Input Data Format
+The stats script expects the input to be for:
+- a given county
+- a given temporal resolution (annual, monthly, seasonal)
+- a given regime (historical observed, historical modeled, projected modeled)
+- a given element variable (tasmax, tasmin, etc)
 
-1. Reformat the data.  
-   **TODO: add more description about the input data, reformatting requirements.**
+With the data formatted as follows:
+```
+variable_name,year,value
+```
 
-   Split out into separate files by county, time category, and element;
-   Create a new header column and copy the header into each row it belongs to.
+For example:
+```
+...
+var1,2000,64
+var1,2001,65
+...
+var2,2000,62
+var2,2001,66
+...
+```
 
-   Arrange the outputs as follows:
-   `data/derived/reformatted/COUNTY/TEMPORAL-RESOLTUION/REGIME/ELEMENT.csv`.
+Where `variable_name` can be a series of models. The core utility here is that for any repeated dates,
+statistics will be computed across the collection of models as described below.
 
-2. Compute the statistics.  
-   For each file in the reformatted directory, run the relevant stats script: [annual](stats-annual) or [monthly/seasonal](stats-ms).
+`data/derived/input/COUNTY/TEMPORAL-RESOLUTION/REGIME/ELEMENT.csv`.
 
-   Arrange the outputs as follows:
-   `data/derived/final/COUNTY/TEMPORAL-RESOLTUION/REGIME/stats/ELEMENT.csv`.
+### Computing statistics for modeled data
+For each file in the input data directory, run the relevant stats script: [annual](stats-annual) or [monthly/seasonal](stats-ms).
 
-3. Copy the annual `hist-obs` regime data into the `final` directory.  
+The computations are described [below](# Statistics Computations).
+
+Split out into separate files by county, time category, and element;
+Create a new header column and copy the header into each row it belongs to.
+
+### Output Data Paths for Public Use
+The following is expected by the client-side graphing application.
+
+1. Arrange the stats outputs as follows:
+
+  `data/derived/final/COUNTY/TEMPORAL-RESOLUTION/REGIME/stats/ELEMENT.csv`.
+
+2. Copy the annual `hist-obs` regime data into the `final` directory.  
    The above two steps created a bunch of stats files in the `final` directory corresponding
    to the `hist-mod` and `proj-mod` regimes.  The climate widget application also needs
    the raw `hist-obs` data files for annual data, so copy them into that directory.
 
    Note, however, that the Climate Widget does not use 'hist-obs' data for monthly or seasonal.
+
+An example directory tree is as follows:
+```
+data/
+    ...
+    37021/
+          annual/
+              hist-mod/stats/
+                  37021-annual-hist-mod-stats-cooling_degree_day_18.3.csv
+                  37021-annual-hist-mod-stats-days_prcp_abv_25.3.csv
+                  ...
+              hist-obs/
+                  37021-annual-hist-obs-cooling_degree_day_18.3.csv
+                  37021-annual-hist-obs-days_prcp_abv_25.3.csv
+                  ...
+              proj-mod/stats/
+                  data/37021/annual/hist-obs/37021-annual-hist-obs-days_prcp_abv_25.3.csv
+                  data/37021/annual/hist-obs/37021-annual-hist-obs-days_prcp_abv_25.3.csv
+                  ...
+          monthly/
+              ...
+          seasonal/
+              ...
+    ...
+```
 
 ---
 **TODO: update the following to reflect the current methodlogy**
