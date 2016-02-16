@@ -34,11 +34,11 @@ variable_name,year,value
 For example:
 ```
 ...
-var1,2000,64
-var1,2001,65
+modelA,2000,64
+modelA,2001,65
 ...
-var2,2000,62
-var2,2001,66
+modelB,2000,62
+modelB,2001,66
 ...
 ```
 
