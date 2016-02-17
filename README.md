@@ -209,21 +209,6 @@ column names.  There should be no spaces or blank lines in any of the files.
 
 The columns expected in each of the files are as follows:
 
- * annual:
- 
-     * hist-obs raw
-       
-       ```
-       stats-annual  -g '' '.*' INPUT_FILE OUTPUT_FILE
-       ```
-       For example, the command to create the stats file corresponding to the
-       raw data file `37021/annual/hist-mod/37021-annual-hist-mod-tasmax.csv` would be:
-       ```
-       stats-annual  -g '' '.*' \
-           37021/annual/hist-mod/37021-annual-hist-mod-tasmax.csv \
-           37021/annual/hist-mod/stats/37021-annual-hist-mod-stats-tasmax.csv
-       ```
-
  * annual
      * hist-obs raw
      
@@ -232,11 +217,13 @@ The columns expected in each of the files are as follows:
        <parameter_id>
        ```
      * hist-mod raw
+     
        ```
        year
        <one column for each model; exact column names do not matter>
        ```
      * hist-mod stats
+     
        ```
        year
        median
@@ -246,11 +233,13 @@ The columns expected in each of the files are as follows:
        p90
        ```
      * proj-mod raw
+
        ```
        year
        <one column for each model and scenario; name should include '_rcpNN_' string indicating which scenario>
        ```
      * proj-mod stats
+
        ```
        year
        rcp45median
@@ -266,12 +255,16 @@ The columns expected in each of the files are as follows:
        ```
      
  * monthly
+
      * hist-obs raw
+
        ```
        yyyymm
        <parameter_id>
        ```
+
      * hist-obs stats
+
        ```
        month
        mean30
@@ -281,14 +274,18 @@ The columns expected in each of the files are as follows:
        p10
        p90
        ```
+
      * proj-mod
+
        ```
        yyyymm
        <one column for each model and scenario; name should include '_rcpNN_' string indicating which scenario>
        ```
+
      * proj-mod stats 
        Note that in these column names, the first 4 digits give the center of one of
        the future 30-year periods of comparison.
+
        ```
        month
        2025rcp45_max
@@ -322,6 +319,7 @@ The columns expected in each of the files are as follows:
        2075rcp85_p10
        2075rcp85_p90
        ```
+
  * seasonal 
    The column names in the seasonal data files are exactly the same as in the monthly files.
 
