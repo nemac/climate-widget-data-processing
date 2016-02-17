@@ -326,6 +326,7 @@ The columns expected in each of the files are as follows:
        ```
 
  * seasonal 
+
    The column names in the seasonal data files are exactly the same as in the monthly files.
 
 
