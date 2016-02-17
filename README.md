@@ -86,6 +86,19 @@ data actually already consists of values which are computed
 statistics of other values -- such as an average over a geographic
 region, or an averge of daily values over a year, month, or season.
 
+
+### Periods of Comparison
+
+Some of the statistics computation for the monthly and seasonal data are done
+using one of the following 30-year time periods in the 21st century:
+2010-2039, 2035-2064, and 2060-2089.  This documentation uses the phrase
+"period of comparison" to refer to these time periods.
+When constructing column names for the computed statistics data,
+each period is identified by the year obtained by adding 15 to
+its starting year.  Specifically, the years 2025, 2050, and 2075 are
+used to identify the three periods of comparison.
+
+
 ## Directory and Filename Structure
 
 The raw data is contained in files using the following
@@ -177,10 +190,10 @@ the regime and frequency:
      * hist-mod: monthly hist-mod data is not used, so no stats are computed for it
      
      * proj-mod: The following computation is done 3 times, once for each of the
-       three 30-year time periods 2010-2039, 2035-2064, and 2060-2089.
+       three periods of comparison 2010-2039, 2035-2064, and 2060-2089.
        For each model in the raw data, and for each month
        in the calendar year, compute the mean value for that model and month
-       over the 30 year period.  Then, for each month and each scenario, compute the median,
+       over the period.  Then, for each month and each scenario, compute the median,
        minimum, maximum, 10th-percentile, and 90th-percentile values across
        all the models in that scenario.
      
@@ -289,7 +302,7 @@ The columns expected in each of the files are as follows:
      * proj-mod stats
 
        Note that in these column names, the first 4 digits give the center of one of
-       the future 30-year periods of comparison.
+       the periods of comparison.
 
        ```
        month
