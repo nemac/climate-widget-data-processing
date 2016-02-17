@@ -286,7 +286,8 @@ The columns expected in each of the files are as follows:
           indicating the scenario>
        ```
 
-     * proj-mod stats 
+     * proj-mod stats
+
        Note that in these column names, the first 4 digits give the center of one of
        the future 30-year periods of comparison.
 
