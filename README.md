@@ -82,7 +82,7 @@ percentile value, or 90th percentile value.  These values are called "statistics
 Note that the distinction between "raw" and "stats" data simply refers
 to whether or not a statistic was computed from the original data in
 the process of creating the climate widget graph.  The original "raw"
-data used here actually already consists of values which are computed
+data actually already consists of values which are computed
 statistics of other values -- such as an average over a geographic
 region, or an averge of daily values over a year, month, or season.
 
@@ -101,10 +101,10 @@ where
   * `PARAMETER_ID` is the id of one of the meteorological parameters described above
   
 The statistics data files use a similar convention but are stored
-in a "stats" subdirectory of the regime directory, and include the
+in a "stats" subdirectory of the regime directories, and include the
 word "stats" in the filename:
 
-    FIPS/FREQUENCY/REGIME/FIPS-FREQUENCY-REGIME-stats-PARAMETER_ID.csv
+    FIPS/FREQUENCY/REGIME/stats/FIPS-FREQUENCY-REGIME-stats-PARAMETER_ID.csv
 
 For example, the raw annual proj-mod data for the tasmax parameter
 for county 37021 is in the file `37021/annual/proj-mod/37021-annual-proj-mod-tasmax.csv`,
@@ -216,105 +216,105 @@ column names.  There should be no spaces or blank lines in any of the files.
 The columns expected in each of the files are as follows:
 
 
-  * annual
-      * hist-obs raw
-        ```
-        year
-        <parameter_id>
-        ```
-      * hist-mod raw
-        ```
-        year
-        <one column for each model; exact column names do not matter>
-        ```
-      * hist-mod stats
-        ```
-        year
-        median
-        min
-        max
-        p10
-        p90
-        ```
-      * proj-mod raw
-        ```
-        year
-        <one column for each model and scenario; name should include '_rcpNN_' string indicating which scenario>
-        ```
-      * proj-mod stats
-        ```
-        year
-        rcp45median
-        rcp45min
-        rcp45max
-        rcp45p10
-        rcp45p90
-        rcp85median
-        rcp85min
-        rcp85max
-        rcp85p10
-        rcp85p90
-        ```
-      
-  * monthly
-      * hist-obs raw
-        ```
-        yyyymm
-        <parameter_id>
-        ```
-      * hist-obs stats
-        ```
-        month
-        mean30
-        max
-        median
-        min
-        p10
-        p90
-        ```
-      * proj-mod
-        ```
-        yyyymm
-        <one column for each model and scenario; name should include '_rcpNN_' string indicating which scenario>
-        ```
-      * proj-mod stats 
-        Note that in these column names, the first 4 digits give the center of one of
-        the future 30-year periods of comparison.
-        ```
-        month
-        2025rcp45_max
-        2025rcp45_median
-        2025rcp45_min
-        2025rcp45_p10
-        2025rcp45_p90
-        2025rcp85_max
-        2025rcp85_median
-        2025rcp85_min
-        2025rcp85_p10
-        2025rcp85_p90
-        2050rcp45_max
-        2050rcp45_median
-        2050rcp45_min
-        2050rcp45_p10
-        2050rcp45_p90
-        2050rcp85_max
-        2050rcp85_median
-        2050rcp85_min
-        2050rcp85_p10
-        2050rcp85_p90
-        2075rcp45_max
-        2075rcp45_median
-        2075rcp45_min
-        2075rcp45_p10
-        2075rcp45_p90
-        2075rcp85_max
-        2075rcp85_median
-        2075rcp85_min
-        2075rcp85_p10
-        2075rcp85_p90
-        ```
-  * seasonal 
-    The column names in the seasonal data files are exactly the same as in the monthly files.
+ * annual
+     * hist-obs raw
+       ```
+       year
+       <parameter_id>
+       ```
+     * hist-mod raw
+       ```
+       year
+       <one column for each model; exact column names do not matter>
+       ```
+     * hist-mod stats
+       ```
+       year
+       median
+       min
+       max
+       p10
+       p90
+       ```
+     * proj-mod raw
+       ```
+       year
+       <one column for each model and scenario; name should include '_rcpNN_' string indicating which scenario>
+       ```
+     * proj-mod stats
+       ```
+       year
+       rcp45median
+       rcp45min
+       rcp45max
+       rcp45p10
+       rcp45p90
+       rcp85median
+       rcp85min
+       rcp85max
+       rcp85p10
+       rcp85p90
+       ```
+     
+ * monthly
+     * hist-obs raw
+       ```
+       yyyymm
+       <parameter_id>
+       ```
+     * hist-obs stats
+       ```
+       month
+       mean30
+       max
+       median
+       min
+       p10
+       p90
+       ```
+     * proj-mod
+       ```
+       yyyymm
+       <one column for each model and scenario; name should include '_rcpNN_' string indicating which scenario>
+       ```
+     * proj-mod stats 
+       Note that in these column names, the first 4 digits give the center of one of
+       the future 30-year periods of comparison.
+       ```
+       month
+       2025rcp45_max
+       2025rcp45_median
+       2025rcp45_min
+       2025rcp45_p10
+       2025rcp45_p90
+       2025rcp85_max
+       2025rcp85_median
+       2025rcp85_min
+       2025rcp85_p10
+       2025rcp85_p90
+       2050rcp45_max
+       2050rcp45_median
+       2050rcp45_min
+       2050rcp45_p10
+       2050rcp45_p90
+       2050rcp85_max
+       2050rcp85_median
+       2050rcp85_min
+       2050rcp85_p10
+       2050rcp85_p90
+       2075rcp45_max
+       2075rcp45_median
+       2075rcp45_min
+       2075rcp45_p10
+       2075rcp45_p90
+       2075rcp85_max
+       2075rcp85_median
+       2075rcp85_min
+       2075rcp85_p10
+       2075rcp85_p90
+       ```
+ * seasonal 
+   The column names in the seasonal data files are exactly the same as in the monthly files.
 
 
 
