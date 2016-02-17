@@ -209,20 +209,33 @@ column names.  There should be no spaces or blank lines in any of the files.
 
 The columns expected in each of the files are as follows:
 
+ * annual:
+ 
+     * hist-obs: no stats are computed - the graphs show the raw hist-obs annual data directly
+
+     * hist-mod: for each year of historical model data, compute the median, minimum,
+       maximum, 10th-percentile, and 90th-percentile value across all model values for that
+       year.
+       
+       This computation is done by the `stats-annual` script using the command:
+       ```
+       stats-annual  -g '' '.*' INPUT_FILE OUTPUT_FILE
+       ```
+       For example, the command to create the stats file corresponding to the
+       raw data file `37021/annual/hist-mod/37021-annual-hist-mod-tasmax.csv` would be:
+       ```
+       stats-annual  -g '' '.*' \
+           37021/annual/hist-mod/37021-annual-hist-mod-tasmax.csv \
+           37021/annual/hist-mod/stats/37021-annual-hist-mod-stats-tasmax.csv
+       ```
 
  * annual
      * hist-obs raw
-       would be:
-       ```
-       stats-ms proj-mod \
-           37021/monthly/proj-mod/37021-monthly-proj-mod-tasmax.csv \
-           37021/monthly/proj-mod/stats/37021-monthly-proj-mod-stats-tasmax.csv
-       ```
-     * hist-mod raw
        ```
        year
        <parameter_id>
        ```
+     * hist-mod raw
        ```
        year
        <one column for each model; exact column names do not matter>
