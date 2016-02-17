@@ -89,7 +89,7 @@ region, or an averge of daily values over a year, month, or season.
 
 ### Periods of Comparison
 
-Some of the statistics computation for the monthly and seasonal data are done
+Some of the statistics computations for the monthly and seasonal data are done
 using one of the following 30-year time periods in the 21st century:
 2010-2039, 2035-2064, and 2060-2089.  This documentation uses the phrase
 "period of comparison" to refer to these time periods.
