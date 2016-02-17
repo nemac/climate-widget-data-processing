@@ -6,7 +6,7 @@
 
 import pandas as pd
 import numpy as np
-import re, math, csv, argparse, os, sys
+import re, math, csv, argparse, os, sys, util
 
 epilog=""
 
@@ -42,54 +42,80 @@ year_ranges = [[2010, 2039],
 
 scenarios = ['rcp45','rcp85']
 
+#################################################################
+##########                                             ##########
+##########    Functions for handling proj-mod data     ##########
+##########                                             ##########
+#################################################################
 
-# Given a data frame df with columns 'month', 'year', and columns for a bunch of model values,
-# compute and return a new data frame which is obtained by:
-#   * considering only the years in a given year range
-#   * for each year and month in the given year range, average all the model values
-#     for a given scenario; this gives a single number for each year,month combo
-#   * for each month, take the median,min,max,p10,p90 stats for all the values
-#     (one for each year) for that month
-# The returned data frame has 12 rows, one for each month
+# Given a data frame df with a simple integer index and columns
+# ['yyyymm', VCOLS, 'month', 'year'], where VCOLS is a bunch (dozens)
+# of columns giving the values of a parameter for various models and scenarios,
+# return a new data frame with 12 rows whose index is 'month', and whose
+# columns give the 5 statistics median,min,max,p10,p90 across all models
+# in the given scenario of the mean values of the input data across
+# the years in the given year range.
+#
+# In other words: first take the mean across the years in the given
+# year range, then take the other statistic across all models in the
+# given scenario.
+#
+# The returned data frame has index ['month'] and 5 columns corresponding
+# to the 5 computed statistics.
 def proj_stat_frame(df, year_range, scenario):
-    # dfy = all data for years in the desired year range
+    # dfy: [int] X ['yyyymm', VCOLS, 'month', 'year']
+    # The incoming df has columns 'yyyymm', 'month', and 'year', and a bunch (dozens)
+    # of columns giving the values of a parameter for various models and scenarios;
+    # each of these column names must contain a string of the form "rcpNN" indicating
+    # which scenario it is for.
+
     dfy = df[(df['year']>=year_range[0]) & (df['year']<=year_range[1])]
+    # dfy: [int] X ['yyyymm', VCOLS, 'month', 'year']
+    # dfy is just like df, except that it only contains data for the years in
+    # the given year range
 
-    # gcols = list of all columns containing models values in the given scenario
-    gcols = ['month'] + [col for col in dfy.columns.values if re.match('.*_'+scenario+'_.*', col)]
-    gb = dfy[gcols].groupby('month')
+    scols = ['month'] + [col for col in dfy.columns.values if re.match('.*_'+scenario+'_.*', col)]
+    # scols is now an array of column names; it includes the 'month' column, and all columns
+    # corresponding to the given scenario
 
+    sdfy = dfy[scols]
+    # dfy: [int] X ['month', SCOLS]
+    # sdfy is now the subset of the original df corresponding exactly to the given
+    # range of years and the given scenario
+
+    gb = sdfy.groupby('month')
+    # gb groups the sdfy data by month
+
+    gbm = gb.mean()
+    # gbm: [month] X [SCOLS]
+    # gbm is now a data frame whose index is 'month' and whose columns give the
+    # the mean value across the selected year range (the years present in sdfy)
+    # of the corresponding column
+
+    # construct and return a new data frame whose index is month, and whose
+    # columns are ['CCCCrcpNN_max', 'CCCCrcpNN_median', 'CCCCrcpNN_min',
+    # 'CCCCrcpNN_p10', 'CCCCrcpNN_p90'], where CCCC is the middle of the given
+    # 30-year range, and 'rcpNN' is the given scenario, and where the columns
+    # contain the corresponding statistic (median,min,max,p10,p90) computed
+    # across all columns in the gmb frame
     prefix = str((year_range[0]+15)) + scenario + "_"
     ndf = pd.DataFrame({
-        prefix+'median' : gb.median().median(axis=1),
-        prefix+'max'    : gb.max().median(axis=1),
-        prefix+'min'    : gb.min().median(axis=1),
-        prefix+'p10'    : gb.quantile(q=0.1).median(axis=1),
-        prefix+'p90'    : gb.quantile(q=0.9).median(axis=1)
+        prefix+'median' : gbm.median(axis=1),
+        prefix+'max'    : gbm.max(axis=1),
+        prefix+'min'    : gbm.min(axis=1),
+        prefix+'p10'    : gbm.quantile(q=0.1,axis=1),
+        prefix+'p90'    : gbm.quantile(q=0.9,axis=1)
+
     })
+    # ndf: ['month'] X ['CCCCrcpNN_max', 'CCCCrcpNN_median', 'CCCCrcpNN_min', 'CCCCrcpNN_p10', 'CCCCrcpNN_p90']
     return ndf
 
-def ensure_dirs(dirpath):
-    # dirpath should be a string representing a path to a directory;
-    # it should NOT include a filename as part of the path
-    components = re.split(r'/', dirpath)
-    if len(components) == 0:
-        return
-    partialpath = components[0]
-    if partialpath == "":
-        return
-    if not os.path.exists(partialpath):
-        os.mkdir(partialpath)
-    for component in components[1:]:
-        partialpath = os.path.join(partialpath, component)
-        if not os.path.exists(partialpath):
-            try:
-                os.mkdir(partialpath)
-            except:
-                pass
-
-def monthly_proj_stats(input_file, output_file):
+def ms_proj_stats(input_file, output_file):
     # read data from file
+    # The 1st column of this df is 'yyyymm'.  The remaining columns (there are several dozen of them)
+    # correspond to a particular parameter value for various models under various scenarios.  The
+    # only assumption this code makes about the names of these columns is that each column name
+    # a substring of the form "rcpNN" indicating which scenario it is for.
     df = pd.read_csv(input_file)
 
     # create new integer column 'month' with month numbers 1-12:
@@ -108,33 +134,68 @@ def monthly_proj_stats(input_file, output_file):
     # concat them all together and write to the output file
     stats = pd.concat(dfs, axis=1)
 
-    ensure_dirs(os.path.dirname(output_file))
+    util.ensure_dirs(os.path.dirname(output_file))
     stats.to_csv(output_file, index=True, quoting=csv.QUOTE_NONE, float_format="%.3f")
     print "wrote %s" % output_file
 
-########################################################################
+#################################################################
+##########                                             ##########
+##########    Functions for handling hist-mod data     ##########
+##########                                             ##########
+#################################################################
 
+# hist_mean_frame takes a data frame df with columns: [yyyymm, <variable_id>, month, year]
+# and 732 rows (61 years [1949 to 2009] * 12 months) of data, and returns a new data frame
+# containing 12 rows with index ['month'] and one column 'mean30' giving the mean
+# value of the <variable_id> column for that month over all the years in the given
+# year range.  The name of the <variable_id> column does not matter, but it must be the
+# second column of the incoming df.  (In practice, <variable> id will be one of
+# "tasmin", "tasmax", or "pr".)
 def hist_mean_frame(df, year_range):
-    col = df.columns.values[1]
+    # incoming df has columns: yyyymm, <variable_id>, month, year
+    # and 732 rows (61 years [1949 to 2009] * 12 months)
+    variable_id = df.columns.values[1]
     dfy = df[(df['year']>=year_range[0]) & (df['year']<=year_range[1])]
+    # dfy is same as df but only contains data for the years in
+    # the given year range
     nfg = dfy.groupby('month')
+    # nfg groups the data in dfy by month; we return a new dataframe
+    # with index 'month' and one column 'mean30' giving the mean value
+    # of the variable_id column over all years for that month
     return pd.DataFrame({
-        'mean30': nfg.mean()[dfy.columns.values[1]]
+        'mean30': nfg.mean()[variable_id]
     })
 
+# hist_stat_frame takes a data frame df with columns: [yyyymm, <variable_id>, month, year]
+# and 732 rows (61 years [1949 to 2009] * 12 months) of data (same input df as in
+# hist_mean_frame above).  It returns a new data frame
+# containing 12 rows with index ['month'] and 5 columns ['median','min','max','p10','p90']
+# giving the corresponding statistic for the <variable_id> column for that month over all the years in
+# input df.  The name of the <variable_id> column does not matter, but it must be the
+# second column of the incoming df.  (In practice, <variable> id will be one of
+# "tasmin", "tasmax", or "pr".)
 def hist_stat_frame(df):
-    col = df.columns.values[1]
+    variable_id = df.columns.values[1]
     nfg = df.groupby('month')
     return pd.DataFrame({
-        'median': nfg.median()[col],
-        'min':    nfg.min()[col],
-        'max':    nfg.max()[col],
-        'p10':    nfg.quantile(q=0.1)[col],
-        'p90':    nfg.quantile(q=0.9)[col]
+        'median': nfg.median()[variable_id],
+        'min':    nfg.min()[variable_id],
+        'max':    nfg.max()[variable_id],
+        'p10':    nfg.quantile(q=0.1)[variable_id],
+        'p90':    nfg.quantile(q=0.9)[variable_id]
     })
 
-def monthly_hist_stats(input_file, output_file):
-    # read data from file
+# ms_hist_stats reads an input file containing 2 columns ['yyyymm', <variable_id>]
+# and 732 rows (61 years [1949 to 2009] * 12 months) of data.
+# It writes an output_file containing 12 rows, one for each month of the year,
+# with 7 columns: ['month','mean30','median','min','max','p10','p90'].  The 'mean30'
+# column contains the <variable_id> column's mean value for the years 1960-1989
+# (inclusive) for the month, and the other columns contain the corresponding statistic for
+# the <variable_id> column across all 61 years of input data for the month.
+def ms_hist_stats(input_file, output_file):
+    # read data from file; this df has 2 columns:
+    #    yyyymm
+    #    VARIABLE_ID ("pr", "tasmin", or "tasmax")
     df = pd.read_csv(input_file)
 
     # create new integer column 'month' with month numbers 1-12:
@@ -149,7 +210,7 @@ def monthly_hist_stats(input_file, output_file):
     # concat them all together and write to the output file
     stats = pd.concat(dfs, axis=1)
     
-    ensure_dirs(os.path.dirname(output_file))
+    util.ensure_dirs(os.path.dirname(output_file))
     stats.to_csv(output_file, index=True, quoting=csv.QUOTE_NONE, float_format="%.3f")
     print "wrote %s" % output_file
 
@@ -170,6 +231,6 @@ else:
 
 for file in files:
     if file['type'] == "proj-mod":
-        monthly_proj_stats(file['input'], file['output'])
+        ms_proj_stats(file['input'], file['output'])
     elif file['type'] == "hist-obs":
-        monthly_hist_stats(file['input'], file['output'])
+        ms_hist_stats(file['input'], file['output'])

@@ -14,4 +14,7 @@ def ensure_dirs(dirpath):
     for component in components[1:]:
         partialpath = os.path.join(partialpath, component)
         if not os.path.exists(partialpath):
-            os.mkdir(partialpath)
+            try:
+                os.mkdir(partialpath)
+            except:
+                pass

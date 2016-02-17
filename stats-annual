@@ -7,9 +7,49 @@
 import re, os, sys, argparse, csv, json, util
 import pandas as pd
 
-epilog=""
+epilog="""
+This program reads an CSV input file containing yearly data,
+and writes out a CSV file containing yearly statistics computed
+from the input values.
 
-parser = argparse.ArgumentParser(description='Do some processing',
+The first line of the input file should be a header line giving
+the column names for the data, separated by commas.
+
+The first column must be named 'year' and must contain a 4-digit
+year value.  The other columns represent data with yearly values
+and can have any names.
+
+The -g (or --group) argument indicates how the data columns should be grouped
+toether for statistic computations.  The -g option may be repeated an arbitrary
+number of times; each -g option should be followed by two arguments: a GROUP_NAME
+and a GROUP_REGEX.  The data columns in each group will be the ones whose
+names (from the header line) match the group's regex.  For each group, the program
+will compute 5 values for each year of input data: the median, minimum, maximum,
+10th-percentile, and 90th-percentile values for that year.
+
+The output file will contain the same number of lines as the input file -- one
+line for each year.  The number of columns in the output file will be 1 + 5*G,
+where G is the number of groups: one column for the year itself, plus 5 columns
+(the 5 computed statistics) for each group.
+
+For example, if the input file looks like this:
+
+    year,a1,a2,a3,a4,a5,b1,b2,b3,b4,b5
+    2010,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0
+    2011,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0,19.0,20.0
+
+then the command
+
+    ./stats-annual -g a_ 'a.*' -g b_ 'b.*' input_file.csv output_file.csv
+
+will create output_file.csv looking like this:
+
+    year,b_median,b_min,b_max,b_p10,b_p90,a_median,a_min,a_max,a_p10,a_p90
+    2010,8.000,6.000,10.000,6.400,9.600,3.000,1.000,5.000,1.400,4.600
+    2011,18.000,16.000,20.000,16.400,19.600,13.000,11.000,15.000,11.400,14.600
+"""
+
+parser = argparse.ArgumentParser(description='Compute statistics for annual data',
                                  formatter_class=argparse.RawTextHelpFormatter,
                                  epilog=epilog)
 
