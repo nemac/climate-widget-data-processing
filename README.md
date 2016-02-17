@@ -212,10 +212,7 @@ The columns expected in each of the files are as follows:
  * annual:
  
      * hist-obs raw: for each year of historical model data, compute the median, minimum,
-       maximum, 10th-percentile, and 90th-percentile value across all model values for that
-       year.
        
-       This computation is done by the `stats-annual` script using the command:
        ```
        stats-annual  -g '' '.*' INPUT_FILE OUTPUT_FILE
        ```
