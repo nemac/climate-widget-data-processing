@@ -190,12 +190,6 @@ the regime and frequency:
        ```
        For example, the command to create the stats file corresponding to
        the raw data file `37021/monthly/proj-mod/37021-monthly-proj-mod-tasmax.csv`
-       would be:
-       ```
-       stats-ms proj-mod \
-           37021/monthly/proj-mod/37021-monthly-proj-mod-tasmax.csv \
-           37021/monthly/proj-mod/stats/37021-monthly-proj-mod-stats-tasmax.csv
-       ```
  * seasonal:
  
    The stats computations for the seasonal data are exactly the same as for
@@ -218,11 +212,17 @@ The columns expected in each of the files are as follows:
 
  * annual
      * hist-obs raw
+       would be:
+       ```
+       stats-ms proj-mod \
+           37021/monthly/proj-mod/37021-monthly-proj-mod-tasmax.csv \
+           37021/monthly/proj-mod/stats/37021-monthly-proj-mod-stats-tasmax.csv
+       ```
+     * hist-mod raw
        ```
        year
        <parameter_id>
        ```
-     * hist-mod raw
        ```
        year
        <one column for each model; exact column names do not matter>
