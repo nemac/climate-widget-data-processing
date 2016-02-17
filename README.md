@@ -236,7 +236,9 @@ The columns expected in each of the files are as follows:
 
        ```
        year
-       <one column for each model and scenario; name should include '_rcpNN_' string indicating which scenario>
+       <one column for each model and scenario; eact names do not matter,
+          but each name should include a string of the form '_rcpNN_'
+          indicating the scenario>
        ```
      * proj-mod stats
 
@@ -279,7 +281,9 @@ The columns expected in each of the files are as follows:
 
        ```
        yyyymm
-       <one column for each model and scenario; name should include '_rcpNN_' string indicating which scenario>
+       <one column for each model and scenario; eact names do not matter,
+          but each name should include a string of the form '_rcpNN_'
+          indicating the scenario>
        ```
 
      * proj-mod stats 
