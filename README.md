@@ -211,7 +211,7 @@ The columns expected in each of the files are as follows:
 
  * annual:
  
-     * hist-obs raw: for each year of historical model data, compute the median, minimum,
+     * hist-obs raw
        
        ```
        stats-annual  -g '' '.*' INPUT_FILE OUTPUT_FILE
