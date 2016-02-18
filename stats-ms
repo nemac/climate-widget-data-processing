@@ -8,7 +8,43 @@ import pandas as pd
 import numpy as np
 import re, math, csv, argparse, os, sys, util
 
-epilog=""
+epilog="""
+This program reads a CSV input file containing either monthly or seasonal
+data, and writes out a CSV file containing statistics computed from the values
+in the input file.
+
+This program can generate stats for either hist-obs or proj-mod data.
+The computations for these two regimes are completely different;  this
+program do either one, and the TYPE argument determines which one it
+does.  The TYPE argument must be either "hist-obs" or "proj-mod".  The
+input file must match that time.
+
+The first line of the input file should be a header line giving
+the column names for the data, separated by commas.
+
+For hist-obs data, the input file should have exactly two columns: a
+6-digit YYYYMM field, and a field giving the value of a meteorological
+parameter.
+
+The output file for hist-obs data will have 12 rows, one for each month in
+the year.  The columns in the output file will be month, mean30, max,
+median, min, p10, and p90.  (See the README.md file for the details of
+what these columns mean.)
+
+For proj-mod data, the input file can have any number of columns.
+The first column should be a 6-digit YYYYMM field, and the remaining
+columns correspond to meteorological parameter values for various
+models using various scenarios.  The only requirement on the names
+of the remaining columns is that each one should contain a string
+of the form "_rcpNN_" indicating which scenario it is for.
+
+The output file for proj-mod data will have 31 columns.  The first
+column is the month number.  The remaining columns give the median,
+min, max, p10, and p90 stats values for each combination of 3
+comparison periods and 2 scenarios (rcp45 and rcp85).  (5 stats X 3
+comparison periods X 2 scenarios = 30 columns; see the README.md file
+for details.)
+"""
 
 parser = argparse.ArgumentParser(description='Write monthly stats file',
                                  formatter_class=argparse.RawTextHelpFormatter,
