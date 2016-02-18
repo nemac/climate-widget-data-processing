@@ -15,9 +15,9 @@ in the input file.
 
 This program can generate stats for either hist-obs or proj-mod data.
 The computations for these two regimes are completely different;  this
-program do either one, and the TYPE argument determines which one it
+program can do either one, and the TYPE argument determines which one it
 does.  The TYPE argument must be either "hist-obs" or "proj-mod".  The
-input file must match that time.
+input file must match that type.
 
 The first line of the input file should be a header line giving
 the column names for the data, separated by commas.
