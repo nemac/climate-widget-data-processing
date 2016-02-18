@@ -33,7 +33,7 @@ present in the above regimes as follows:
       * annual data for the years 2006-2099 (inclusive)
       * monthly data for the years 2006-2100 (inclusive)
       * seasonal data for the years 2006-2100 (inclusive)
-      
+
 ### FIPS Codes
 
 The climate widget graph data is organized by US County. Each county is
@@ -53,23 +53,23 @@ The meteorological parameters present in the data are as follows:
   * for annual, monthly, and seasonal data:
 
     ```
-    ID                           UNITS       DESCRIPTION 
-    tasmax                       °C          mean daily maximum temperature 
-    tasmin                       °C          mean daily minimum temperature 
+    ID                           UNITS       DESCRIPTION
+    tasmax                       °C          mean daily maximum temperature
+    tasmin                       °C          mean daily minimum temperature
     pr                           mm/day      mean daily average precipitation
     ```
-    
+
   * for annual data only:
-  
+
     ```
-    ID                           UNITS       DESCRIPTION 
+    ID                           UNITS       DESCRIPTION
     cooling_degree_day_18.3      °C-day      cooling degree days relative to 18.3 °C
     heating_degree_day_18.3      °C-day      heating degree days relative to 18.3 °C
     days_tmax_abv_35.0           days        number of days with maximum temperature above 35.0 °C
     days_tmin_blw_0.0            days        number of days with minimum temperature below 0.0 °C
     days_prcp_abv_25.3           days        number of days with precipitation above 25.3 mm
     ```
-    
+
 ### Raw Data vs Statistics Data
 
 Some of the data used in the climate widget graphs comes directly from the original
@@ -84,7 +84,7 @@ to whether or not a statistic was computed from the original data in
 the process of creating the climate widget graph.  The original "raw"
 data actually already consists of values which are computed
 statistics of other values -- such as an average over a geographic
-region, or an averge of daily values over a year, month, or season.
+region, or an average of daily values over a year, month, or season.
 
 
 ### Periods of Comparison
@@ -112,7 +112,7 @@ where
   * `FREQUENCY` is either "annual", "monthly", or "seasonal"
   * `REGIME` is either "hist-obs", "hist-mod", or "proj-mod"
   * `PARAMETER_ID` is the id of one of the meteorological parameters described above
-  
+
 The statistics data files use a similar convention but are stored
 in a "stats" subdirectory of the regime directories, and include the
 word "stats" in the filename:
@@ -130,13 +130,13 @@ The following statistics are computed from the raw data, based on
 the regime and frequency:
 
  * annual:
- 
+
      * hist-obs: no stats are computed - the graphs show the raw hist-obs annual data directly
 
      * hist-mod: for each year of historical model data, compute the median, minimum,
        maximum, 10th-percentile, and 90th-percentile value across all model values for that
        year.
-       
+
        This computation is done by the `stats-annual` script using the command:
        ```
        stats-annual  -g '' '.*' INPUT_FILE OUTPUT_FILE
@@ -148,11 +148,11 @@ the regime and frequency:
            37021/annual/hist-mod/37021-annual-hist-mod-tasmax.csv \
            37021/annual/hist-mod/stats/37021-annual-hist-mod-stats-tasmax.csv
        ```
-       
+
      * proj-mod: for each year of model projection data, and for each scenario, compute the median, minimum,
        maximum, 10th-percentile, and 90th-percentile value across all model values for that
        year and scenario.
-        
+
        This computation is done by the `stats-annual` script using the command:
        ```
        stats-annual -g 'rcp45' '.*rcp45.*' -g 'rcp85' '.*rcp85.*'  IN OUT
@@ -166,14 +166,14 @@ the regime and frequency:
        ```
 
  * monthly:
- 
+
      * hist-obs: for each of the 12 calendar months, compute the median, minimum,
        maximum, 10th-percentile, and 90th-percentile values across all years
        present in the raw data.  Additionally, compute the mean value across
        the 30 years 1960-1989 (inclusive).  (This mean value, labelled as 'mean30'
        in the stats file, was used in an earlier version of the graphs and
        is no longer used but is still computed and included in the data.)
-       
+
        This computation is done by the `stats-ms` script using the command
        ```
        stats-ms hist-obs INPUT_FILE OUTPUT_FILE
@@ -188,7 +188,7 @@ the regime and frequency:
        ```
 
      * hist-mod: monthly hist-mod data is not used, so no stats are computed for it
-     
+
      * proj-mod: The following computation is done 3 times, once for each of the
        three periods of comparison 2010-2039, 2035-2064, and 2060-2089.
        For each model in the raw data, and for each month
@@ -196,7 +196,7 @@ the regime and frequency:
        over the period.  Then, for each month and each scenario, compute the median,
        minimum, maximum, 10th-percentile, and 90th-percentile values across
        all the models in that scenario.
-     
+
        This computation is done by the `stats-ms` script using the command
        ```
        stats-ms proj-mod INPUT_FILE OUTPUT_FILE
@@ -211,7 +211,7 @@ the regime and frequency:
        ```
 
  * seasonal:
- 
+
    The stats computations for the seasonal data are exactly the same as for
    the monthly data, described above, because the structure of the seasonal
    data is the same as for the monthly data, except that each year only
@@ -231,19 +231,19 @@ The columns expected in each of the files are as follows:
 
  * annual
      * hist-obs raw
-     
+
        ```
        year
        <parameter_id>
        ```
      * hist-mod raw
-     
+
        ```
        year
        <one column for each model; exact column names do not matter>
        ```
      * hist-mod stats
-     
+
        ```
        year
        median
@@ -256,7 +256,7 @@ The columns expected in each of the files are as follows:
 
        ```
        year
-       <one column for each model and scenario; eact names do not matter,
+       <one column for each model and scenario; exact names do not matter,
           but each name should include a string of the form '_rcpNN_'
           indicating the scenario>
        ```
@@ -275,7 +275,7 @@ The columns expected in each of the files are as follows:
        rcp85p10
        rcp85p90
        ```
-     
+
  * monthly
 
      * hist-obs raw
@@ -301,7 +301,7 @@ The columns expected in each of the files are as follows:
 
        ```
        yyyymm
-       <one column for each model and scenario; eact names do not matter,
+       <one column for each model and scenario; exact names do not matter,
           but each name should include a string of the form '_rcpNN_'
           indicating the scenario>
        ```
@@ -345,7 +345,7 @@ The columns expected in each of the files are as follows:
        2075rcp85_p90
        ```
 
- * seasonal 
+ * seasonal
 
    The column names in the seasonal data files are exactly the same as in the monthly files.
 
